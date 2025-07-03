@@ -130,6 +130,20 @@ def align_3ddfav2(dir, fn, f_gt=-1):
     else:
         # keep orthogonal camera, add bias to make pyrender work
         pred_align_mesh.vertices[:,2] -= (np.mean(pred_align_mesh.vertices[:,2]) + render_bias)
+    
+    # 保存对齐后的obj文件
+    try:
+        # 创建保存目录
+        save_dir = os.path.join("..", "alignment_results")
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # 保存对齐后的mesh
+        aligned_save_path = os.path.join(save_dir, f"{fn}_3ddfav2_aligned.obj")
+        pred_align_mesh.export(aligned_save_path)
+        print(f"3DDFA_V2对齐后的mesh已保存到: {aligned_save_path}")
+    except Exception as e:
+        print(f"保存3DDFA_V2对齐结果时出错: {e}")
+    
     return pred_align_mesh
 
 
@@ -685,6 +699,66 @@ def align_rafare(dir, fn, f_gt=-1):
         pred_align_mesh.vertices[:,2] -= (np.mean(pred_align_mesh.vertices[:,2]) + render_bias)
     return pred_align_mesh
 
+# zhuhao
+def align_ubsd(dir, fn, f_gt=-1, save_aligned=True, visualize=False, use_icp=True):
+    
+    try:
+        # read mesh
+        pred_world_mesh_path = os.path.join(dir, "%s.obj" % fn)
+        pred_world_mesh = load_ori_mesh(pred_world_mesh_path)
+        pred_align_mesh = pred_world_mesh.copy()
+        
+        print(f"加载UBSD预测mesh: {pred_world_mesh_path}")
+        print(f"mesh顶点数: {len(pred_align_mesh.vertices)}, 面数: {len(pred_align_mesh.faces)}")
+        
+        # UBSD的输出已经是相对标准化的坐标，在[-1, 1]范围内
+        # 不需要像其他方法那样除以(gt_img_size/2)
+        
+        # 检查坐标是否已经在合理范围内
+        max_xy = max(np.max(np.abs(pred_align_mesh.vertices[:, 0])), 
+                     np.max(np.abs(pred_align_mesh.vertices[:, 1])))
+        
+        print(f"最大XY坐标: {max_xy:.4f}")
+        
+        if max_xy > 2.0:  # 如果坐标范围太大，需要标准化
+            print("坐标范围较大，进行标准化...")
+            # 使用与其他方法相同的标准化
+            pred_align_mesh.vertices /= (gt_img_size/2)
+            pred_align_mesh.vertices[:, :2] -= 1
+        else:
+            print("UBSD坐标已经在合理范围内，保持原有坐标")
+        
+        if f_gt > 0:
+            # orthogonal to perspective
+            pred_align_mesh.vertices = R_pers2ortho.dot(pred_align_mesh.vertices.T).T
+            pred_align_mesh.vertices[:, 2] -= np.mean(pred_align_mesh.vertices[:,2])
+            pred_align_mesh.vertices[:, 2] += (f_gt / (gt_img_size/2))
+            
+            # scale to make face width = 1
+            pred_align_mesh.vertices /= (np.max(pred_align_mesh.vertices[:, 1]) - \
+                                         np.min(pred_align_mesh.vertices[:, 1]))/3
+            print("应用透视投影变换")
+        else:
+            # keep orthogonal camera, add bias to make pyrender work
+            pred_align_mesh.vertices[:,2] -= (np.mean(pred_align_mesh.vertices[:,2]) + render_bias)
+            print("保持正交投影，添加渲染偏移")
+        
+        # 保存对齐后的obj文件
+        if save_aligned:
+            # 创建保存目录
+            save_dir = os.path.join("..", "alignment_results")
+            os.makedirs(save_dir, exist_ok=True)
+            
+            # 保存对齐后的mesh
+            aligned_save_path = os.path.join(save_dir, f"{fn}_ubsd_aligned.obj")
+            pred_align_mesh.export(aligned_save_path)
+            print(f"UBSD对齐后的mesh已保存到: {aligned_save_path}")
+        
+        return pred_align_mesh
+        
+    except Exception as e:
+        print(f"Error in align_ubsd for {fn}: {e}")
+        return None
 
 # ==================== dispatcher ====================
 load_dispatcher = {'facescape_opti': align_facescape_opti,
@@ -702,6 +776,7 @@ load_dispatcher = {'facescape_opti': align_facescape_opti,
                    'DFDN': align_dfdn,
                    'LAP': align_lap, # OK
                    'RAFaRe': align_rafare,
+                   'UBSD': align_ubsd, # OK
                   }
 
 # ==================== tool functions ====================

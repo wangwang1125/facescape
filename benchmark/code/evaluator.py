@@ -17,19 +17,21 @@
 ## ================================================================================
 
 import numpy as np, pickle, os, cv2, tqdm, argparse, json
-from mesh_util import compute_chamfer, load_ori_mesh, make_trimesh, depth2mesh, cylinder2mesh
+from mesh_util import compute_chamfer, load_ori_mesh, make_trimesh, depth2mesh, cylinder2mesh, icp_alignment_ubsd
 from renderer import render_orthcam, render_cvcam
 from scipy.optimize import minimize
 from pred_loader import load_dispatcher
 
 class fs_evaluator():
-    def __init__(self, dataset_name="fswild", method_name="facescape_opti", save_heat_mesh = True):
+    def __init__(self, dataset_name="fswild", method_name="facescape_opti", save_heat_mesh = True, use_icp=True, use_icp_in_optimize=False):
         
         self.dataset = dataset_name
         self.method = method_name
         self.save_heat_mesh = save_heat_mesh
+        self.use_icp = use_icp
+        self.use_icp_in_optimize = use_icp_in_optimize
         self.gt_mesh_dir = "../data/%s_gt_mesh/" % self.dataset[2:]
-        self.pred_mesh_dir = "../pred/%s_pred/%s/" % (self.dataset[2:], self.method)
+        self.pred_mesh_dir = "E:\\vscode\\git_project\\facescape\\benchmark\\pred\\%s_pred\\%s\\" % (self.dataset[2:], self.method)
         self.save_dir = "../eval_result/%s_%s/" % (self.dataset, self.method)
         self.rend_size = 256
         self.ortho_scale = 128
@@ -260,7 +262,7 @@ class fs_evaluator():
         vert_error[vert_error < min_value] = min_value
         vert_error[vert_error > max_value] = max_value
         error_posi = ((vert_error - min_value) / (max_value - min_value) * \
-                      (len(self.color_bar) - 1)).astype(np.int)
+                      (len(self.color_bar) - 1)).astype(int)
         vert_colors = self.color_bar[:,0,:][error_posi]
         
         tgt_mesh = make_trimesh(src_mesh.vertices, 
@@ -318,6 +320,12 @@ class fs_evaluator():
             pupil_scale = self.pupil_scale_list[idx]
             gt_world_mesh.vertices *= pupil_scale
             pred_align_mesh.vertices *= pupil_scale
+            
+            # Apply ICP alignment for UBSD method
+            # ==================================================
+            if self.method == "UBSD" and hasattr(self, 'use_icp') and self.use_icp:
+                print(f"对 {file_name} 应用ICP配准...")
+                pred_align_mesh = icp_alignment_ubsd(pred_align_mesh, gt_world_mesh)
             
             # align in depth direction in Z by optimizing detla_z
             # ==================================================
@@ -423,6 +431,12 @@ class fs_evaluator():
             
             pred_align_mesh.vertices *= self.std_pupil_dist
             
+            # Apply ICP alignment for UBSD method
+            # ==================================================
+            if self.method == "UBSD" and hasattr(self, 'use_icp') and self.use_icp:
+                print(f"对 {file_name} 应用ICP配准...")
+                pred_align_mesh = icp_alignment_ubsd(pred_align_mesh, gt_world_mesh)
+            
             # align in depth direction in Z by optimizing detla_z
             # ==================================================
             delta_z, depth_gt, depth_pred, mask, depth_gt_area = self.optimize_Z(gt_world_mesh, 
@@ -493,12 +507,14 @@ def main():
     parser.add_argument('--method', type=str, help="method name to be evaluated.")
     parser.add_argument('--num', type=int, default = -1, help="numbers to process.")
     parser.add_argument('--heat_mesh', type=bool, default=True, help="save heat mesh or not.")
+    parser.add_argument('--use_icp', type=bool, default=True, help="use ICP alignment for UBSD method.")
     
     args = parser.parse_args()
     
     fs_eval = fs_evaluator(dataset_name = args.dataset, 
                            method_name = args.method, 
-                           save_heat_mesh = args.heat_mesh)
+                           save_heat_mesh = args.heat_mesh,
+                           use_icp = args.use_icp)
     fs_eval.run(args.num)
 
 if __name__ == "__main__":

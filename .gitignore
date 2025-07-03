@@ -1,0 +1,355 @@
+# ==============================================================================
+# FaceScape Project .gitignore
+# ==============================================================================
+
+# Python相关
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# 单元测试和覆盖率
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# 翻译文件
+*.mo
+*.pot
+
+# Django相关
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask相关
+instance/
+.webassets-cache
+
+# Scrapy相关
+.scrapy
+
+# Sphinx文档
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# celery相关
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath相关
+*.sage.py
+
+# 环境变量
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder项目设置
+.spyderproject
+.spyproject
+
+# Rope项目设置
+.ropeproject
+
+# mkdocs文档
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre类型检查器
+.pyre/
+
+# ==============================================================================
+# 数据文件和大型文件
+# ==============================================================================
+
+# 3D模型文件
+*.obj
+*.ply
+*.off
+*.stl
+*.dae
+*.3ds
+*.blend
+*.fbx
+
+# 图像文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.webp
+
+# 视频文件
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+
+# 音频文件
+*.mp3
+*.wav
+*.ogg
+*.flac
+
+# 压缩文件
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tar.bz2
+
+# 数据文件
+*.npy
+*.npz
+*.mat
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.txt
+# JSON数据文件（保留配置文件）
+benchmark/data/lab_cam/*.json
+benchmark/data/wild_cam/*.json
+
+# ==============================================================================
+# 结果和输出文件
+# ==============================================================================
+
+# 评估结果
+benchmark/eval_result/*/
+benchmark/alignment_results/
+benchmark/pred/lab_pred/
+benchmark/pred/wild_pred/
+
+# 热力图网格
+**/heatmesh/
+**/heat_mesh/
+
+# 输出和日志
+output/
+outputs/
+logs/
+log/
+*.log
+*.out
+*.err
+
+# 结果文本文件
+*_full.txt
+*_result.txt
+CD_*.txt
+CR_*.txt
+MNE_*.txt
+
+# ==============================================================================
+# 临时文件和缓存
+# ==============================================================================
+
+# 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+*.tmp
+*.temp
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# 编辑器临时文件
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# ==============================================================================
+# 模型和权重文件
+# ==============================================================================
+
+# PyTorch模型
+*.pth
+*.pt
+*.ckpt
+*.tar
+
+# TensorFlow模型
+*.pb
+*.tfmodel
+saved_model/
+checkpoint
+*.ckpt.*
+*.meta
+*.index
+*.data-*
+
+# ONNX模型
+*.onnx
+
+# 其他机器学习框架
+*.caffemodel
+*.prototxt
+*.t7
+
+# ==============================================================================
+# 特定于FaceScape项目的忽略规则
+# ==============================================================================
+
+# 下载的数据
+benchmark/data/data.zip
+benchmark/data/lab_gt_mesh/
+benchmark/data/wild_gt_mesh/
+benchmark/data/lab_img/
+benchmark/data/wild_img/
+
+# 预定义数据
+benchmark/code/predef/*.npy
+toolkit/predef/*.npy
+
+# 演示输出
+toolkit/demo_output/
+demo_output/
+
+# 测试数据
+test_data/
+sample_data/
+
+# 脚本生成的文件
+benchmark/code/fix_libstdc.sh
+benchmark/code/run_headless.sh
+benchmark/code/setup_headless.sh
+
+# 配置文件副本
+*_backup.*
+*_copy.*
+*_temp.*
+
+# ==============================================================================
+# 开发和调试文件
+# ==============================================================================
+
+# 性能分析
+*.prof
+*.profile
+
+# 调试文件
+*.dmp
+*.stackdump
+
+# 内存转储
+core.*
+
+# 测试覆盖率
+htmlcov/
+.coverage.*
+
+# ==============================================================================
+# 文档和说明文件例外
+# ==============================================================================
+
+# 保留重要的README和文档
+!README.md
+!README.rst
+!README.txt
+!*.md
+!docs/
+!doc/
+
+# 保留示例配置文件
+!config/
+!configs/
+!example*
+!sample*
+
+# 保留requirements文件
+!requirements.txt
+!requirements*.txt
+!environment.yml
+!Pipfile
+!setup.py
+!setup.cfg
+
+# ==============================================================================
+# 自定义忽略规则
+# ==============================================================================
+
+# 个人笔记和草稿
+notes/
+draft/
+scratch/
+todo.txt
+notes.txt
+
+# 实验结果
+experiments/
+exp_*/
+test_*/
+
+# 个人配置
+local_config.py
+personal_settings.py 
