@@ -31,7 +31,7 @@ class fs_evaluator():
         self.use_icp = use_icp
         self.use_icp_in_optimize = use_icp_in_optimize
         self.gt_mesh_dir = "../data/%s_gt_mesh/" % self.dataset[2:]
-        self.pred_mesh_dir = "E:\\vscode\\git_project\\facescape\\benchmark\\pred\\%s_pred\\%s\\" % (self.dataset[2:], self.method)
+        self.pred_mesh_dir = "E:\\vscode\\project\\facescape\\benchmark\\pred\\%s_pred\\%s\\" % (self.dataset[2:], self.method)
         self.save_dir = "../eval_result/%s_%s/" % (self.dataset, self.method)
         self.rend_size = 256
         self.ortho_scale = 128
@@ -324,8 +324,22 @@ class fs_evaluator():
             # Apply ICP alignment for UBSD method
             # ==================================================
             if self.method == "UBSD" and hasattr(self, 'use_icp') and self.use_icp:
+                # 保存配准前的模型
+                pre_icp_save_dir = os.path.join("..", "alignment_results")
+                os.makedirs(pre_icp_save_dir, exist_ok=True)
+                pre_icp_save_path = os.path.join(pre_icp_save_dir, f"{file_name}_ubsd_pre_icp.obj")
+                pred_align_mesh.export(pre_icp_save_path)
+                print(f"ICP配准前的mesh已保存到: {pre_icp_save_path}")
+                
                 print(f"对 {file_name} 应用ICP配准...")
                 pred_align_mesh = icp_alignment_ubsd(pred_align_mesh, gt_world_mesh)
+                
+                # 保存配准后的模型
+                post_icp_save_dir = os.path.join("..", "alignment_results")
+                os.makedirs(post_icp_save_dir, exist_ok=True)
+                post_icp_save_path = os.path.join(post_icp_save_dir, f"{file_name}_ubsd_post_icp.obj")
+                pred_align_mesh.export(post_icp_save_path)
+                print(f"ICP配准后的mesh已保存到: {post_icp_save_path}")
             
             # align in depth direction in Z by optimizing detla_z
             # ==================================================
@@ -434,9 +448,29 @@ class fs_evaluator():
             # Apply ICP alignment for UBSD method
             # ==================================================
             if self.method == "UBSD" and hasattr(self, 'use_icp') and self.use_icp:
+                # 保存配准前的模型
+                pre_icp_save_dir = os.path.join("..", "alignment_results")
+                os.makedirs(pre_icp_save_dir, exist_ok=True)
+                pre_icp_save_path = os.path.join(pre_icp_save_dir, f"{file_name}_ubsd_pre_icp.obj")
+                pred_align_mesh.export(pre_icp_save_path)
+                print(f"ICP配准前的mesh已保存到: {pre_icp_save_path}")
+                
                 print(f"对 {file_name} 应用ICP配准...")
                 pred_align_mesh = icp_alignment_ubsd(pred_align_mesh, gt_world_mesh)
-            
+                
+                # 保存配准后的模型
+                post_icp_save_dir = os.path.join("..", "alignment_results")
+                os.makedirs(post_icp_save_dir, exist_ok=True)
+                post_icp_save_path = os.path.join(post_icp_save_dir, f"{file_name}_ubsd_post_icp.obj")
+                pred_align_mesh.export(post_icp_save_path)
+                print(f"ICP配准后的mesh已保存到: {post_icp_save_path}")
+                
+                # 保存真实模型gt_world_mesh
+                post_icp_save_dir = os.path.join("..", "alignment_results")
+                os.makedirs(post_icp_save_dir, exist_ok=True)
+                post_icp_save_path = os.path.join(post_icp_save_dir, f"{file_name}_gt_world_mesh.obj")
+                gt_world_mesh.export(post_icp_save_path)
+                print(f"ICP配准后的mesh已保存到: {post_icp_save_path}")
             # align in depth direction in Z by optimizing detla_z
             # ==================================================
             delta_z, depth_gt, depth_pred, mask, depth_gt_area = self.optimize_Z(gt_world_mesh, 

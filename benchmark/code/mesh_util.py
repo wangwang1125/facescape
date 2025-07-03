@@ -231,7 +231,7 @@ def procrustes_analysis(source_points, target_points):
     
     return R, t, scale
 
-def apply_icp_alignment(pred_mesh, gt_mesh, pred_keypoints_idx, real_keypoints_idx, max_iterations=50, tolerance=1e-6):
+def apply_icp_alignment(pred_mesh, gt_mesh, pred_keypoints_idx, real_keypoints_idx, max_iterations=20, tolerance=1e-6):
     """
     使用关键点进行初始配准，然后进行ICP优化
     """
